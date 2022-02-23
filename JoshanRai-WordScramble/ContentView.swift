@@ -8,31 +8,46 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var usedWords = [String]()
+    @State private var rootWord = ""
+    @State private var newWord = ""
+    
     var body: some View {
-        Text("Hello")
-            .padding()
+        NavigationView {
+            List {
+                Section {
+                    TextField("Enter your word", text: $newWord)
+                        .textInputAutocapitalization(.none)
+                }
+                
+                Section {
+                    ForEach(usedWords, id: \.self) { word in
+                        HStack {
+                            Image(systemName: "\(word.count).circle")
+                            Text(word)
+                        }
+                    }
+                }
+            }
+            .navigationTitle(rootWord)
+            .onSubmit(addNewWord)
+        }
     }
     
-    func test() {
-        let word = "swift"
-        let checker = UITextChecker()
+    func addNewWord() {
+        //  lowercase and trim the word, to make sure we don't add duplicate words with case differences
+        let answer = newWord.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
-        let range = NSRange(location: 0, length: word.utf16.count)
-        let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
+        //  exit if the remaining string is empty
+        guard answer.count > 0 else { return }
         
-        let allGood = misspelledRange.location == NSNotFound
+        //  extra validation to come
         
-        /*
-        let input = """
-a
-b
-c
-"""
-        let letters = input.components(separatedBy: "\n")
-        let letter = letters.randomElement()
+        withAnimation {
+            usedWords.insert(answer, at: 0)
+        }
         
-        let trimmed = letter?.trimmingCharacters(in: .whitespacesAndNewlines)
-         */
+        newWord = ""
     }
 }
 

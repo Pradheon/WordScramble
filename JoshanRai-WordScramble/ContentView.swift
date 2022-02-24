@@ -18,6 +18,12 @@ struct ContentView: View {
     @State private var errorMessage = ""
     @State private var showingError = false
     
+    var score: Int {
+        return usedWords.reduce(0) { result, word in
+            result + word.count * usedWords.count
+        }
+    }
+    
     var body: some View {
         NavigationView {
             List {
@@ -34,10 +40,17 @@ struct ContentView: View {
                         }
                     }
                 }
+                
+                Text("Score: \(score)")
             }
             .navigationTitle(rootWord)
             .onSubmit(addNewWord)
             .onAppear(perform: startGame)
+            .toolbar {
+                Button("Change Word") {
+                    startGame()
+                }
+            }
             .alert(errorTitle, isPresented: $showingError) {
                 Button("OK", role: .cancel) { }
             } message: {
@@ -65,6 +78,11 @@ struct ContentView: View {
         
         guard isReal(word: answer) else {
             wordError(title: "Word not recognized", message: "You can't just make them up, you know!")
+            return
+        }
+        
+        guard isLongEnough(word: answer) else {
+            wordError(title: "Word too short", message: "Got to make it \(3 - answer.count) letters longer")
             return
         }
         
@@ -117,6 +135,10 @@ struct ContentView: View {
         errorTitle = title
         errorMessage = message
         showingError = true
+    }
+    
+    func isLongEnough(word: String) -> Bool {
+        word.count >= 3
     }
 }
 
